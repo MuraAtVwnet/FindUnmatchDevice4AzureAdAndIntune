@@ -3,12 +3,6 @@
 Azure AD と Intune に登録されているデバイスのうちアンマッチのデバイスをリストアップします
 
 .DESCRIPTION
-アンマッチデバイスのみ出力(AllListオプションを指定していない時の動作)
-    アンマッチデバイスのみリスト出力します
-
-全デバイス リスト出力(-AllList)
-    全てのデバイスをリスト出力します
-
 CSV 出力ディレクトリ指定(-CSVPath)
     CSV の出力先ディレクトリ
     省略時はカレントに出力されます
@@ -20,9 +14,6 @@ CSV 出力ディレクトリ指定(-CSVPath)
 .EXAMPLE
 PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1
 アンマッチデバイスリストを出力します
-
-PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1 -AllList
-全デバイスリストを出力します
 
 PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1 -CSVPath C:\CSV
 アンマッチデバイスリストを C:\CSV に出力します
@@ -49,8 +40,7 @@ CSV の出力先
 #######################################################
 Param(
 	[string]$CSVPath,			# CSV 出力 Path
-	[string]$LogPath,			# ログ出力ディレクトリ
-	[switch]$AllList			# 全リスト出力
+	[string]$LogPath			# ログ出力ディレクトリ
 	)
 
 # 重複デバイスデータ名
@@ -73,6 +63,9 @@ class CsvRecode {
 	[string] $AzureAdDeviceID
 	[string] $AzureAdObjectID
 	[string] $IntuneDeviceID
+	[string] $AzureADOnly
+	[string] $IntuneOnly
+	[string] $Match
 }
 
 
@@ -119,6 +112,24 @@ function Log(
 }
 
 ###################################################
+# AzureAD データにマッチングキー追加
+###################################################
+filter AddMatchingKey4AzureAD{
+	$MatchingKey = $_.DisplayName + ":" + $_.DeviceId
+	Add-Member -InputObject $_ -MemberType NoteProperty -Name MatchingKey -Value $MatchingKey -Force
+	return $_
+}
+
+###################################################
+# Intune データにマッチングキー追加
+###################################################
+filter AddMatchingKey4Intune{
+	$MatchingKey = $_.deviceName + ":" + $_.azureADDeviceId
+	Add-Member -InputObject $_ -MemberType NoteProperty -Name MatchingKey -Value $MatchingKey -Force
+	return $_
+}
+
+###################################################
 # AzureAD データセット
 ###################################################
 function SetAzureAdDeviceData($AzureADData){
@@ -133,6 +144,10 @@ function SetAzureAdDeviceData($AzureADData){
 
 	# デバイス ID
 	$DeviceData.AzureAdDeviceID = $AzureADData.DeviceId
+
+	# Azure AD Only
+	$DeviceData.AzureADOnly = '*'
+
 
 	return $DeviceData
 }
@@ -152,6 +167,9 @@ function SetIntuneDeviceData($IntuneData){
 
 	# 管理デバイス ID
 	$DeviceData.IntuneDeviceID = $IntuneData.managedDeviceId
+
+	# Intune Only
+	$DeviceData.IntuneOnly = '*'
 
 	return $DeviceData
 }
@@ -175,6 +193,9 @@ function SetAzureAdAndIntuneDeviceData($AzureADData, $IntuneData){
 	# 管理デバイス ID
 	$DeviceData.IntuneDeviceID = $IntuneData.managedDeviceId
 
+	# Match
+	$DeviceData.Match = '*'
+
 	return $DeviceData
 }
 
@@ -184,14 +205,14 @@ function SetAzureAdAndIntuneDeviceData($AzureADData, $IntuneData){
 # マスター Key セット
 #######################################################
 function SetMasterKey($MasterObjects){
-	return ($MasterObjects.DisplayName + $MasterObjects.DeviceId)
+	return $MasterObjects.MatchingKey
 }
 
 #######################################################
 # トランキー Key セット
 #######################################################
 function SetTranKey($TranObjects){
-	return ($TranObjects.deviceName + $TranObjects.azureADDeviceId)
+	return $TranObjects.MatchingKey
 }
 
 #######################################################
@@ -237,7 +258,7 @@ function Matching([array]$MasterObjects, [array]$TranObjects){
 	# Master 終わったフラグ
 	$Master_EOD = $false
 	# Sort
-	[array]$MasterData = $MasterObjects | Sort-Object 【MasterKeyProperty】
+	[array]$MasterData = $MasterObjects | Sort-Object  -Property MatchingKey
 	# Max 件数
 	$Master_Max = $MasterData.Count
 	# Key 初期セットset
@@ -253,7 +274,7 @@ function Matching([array]$MasterObjects, [array]$TranObjects){
 	# Tran 終わったフラグ
 	$Tran_EOD = $false
 	# Sort
-	[array]$TranData = $TranObjects | Sort-Object 【TranKeyProperty】
+	[array]$TranData = $TranObjects | Sort-Object  -Property MatchingKey
 	# Max 件数
 	$Tran_Max = $TranData.Count
 	# Key 初期セットset
@@ -387,7 +408,7 @@ function Matching([array]$MasterObjects, [array]$TranObjects){
 
 
 	# 戻り値セット
-	$ReturnData = New-Object PSObject | Select-Object`
+	$ReturnData = New-Object PSObject | Select-Object `
 			MasterOnlyData, # マスターオンリー
 			MatchData,		# マッチ
 			TranOnlyData	# トランオンリー
@@ -486,13 +507,11 @@ catch{
 }
 
 # Azure AD 全デバイスを取得
-[array]$AzureAdDevicesData = Get-AzureADDevice
+[array]$AzureAdDevicesData = Get-AzureADDevice | AddMatchingKey4AzureAD
 
 # 対象デバイス数表示
-Log "[INFO] Azure AD Devices count : $AzureAdDevicesData.Count
-
-# sort
-$SortAzureAdDevicesData = $AzureAdDevicesData | Sort-Object -Property DisplayName, DeviceId
+$Count = $AzureAdDevicesData.Count
+Log "[INFO] Azure AD Devices count : $Count"
 
 # Intune Login
 try{
@@ -516,14 +535,12 @@ catch{
 	exit
 }
 
-# 全デバイスを取得
-[array]$IntuneDevicesData = Get-IntuneManagedDevice
+# Intune 全デバイスを取得
+[array]$IntuneDevicesData = Get-IntuneManagedDevice | AddMatchingKey4Intune
 
 # 対象デバイス数表示
-Log "[INFO] Intune Devices count : $IntuneDevicesData.Count
-
-# sort
-$SortIntuneDevicesData = $IntuneDevicesData | Sort-Object -Property deviceName, azureADDeviceId
+$Count = $IntuneDevicesData.Count
+Log "[INFO] Intune Devices count : $Count"
 
 # CSV 出力先
 if( $CSVPath -eq [string]$null){
@@ -531,7 +548,7 @@ if( $CSVPath -eq [string]$null){
 }
 
 # マッチング
-$RetData = Matching $SortAzureAdDevicesData $SortIntuneDevicesData
+$RetData = Matching $AzureAdDevicesData $IntuneDevicesData
 
 # マッチング結果データ取り出し
 [array]$CsvData = $RetData.MasterOnlyData
