@@ -11,15 +11,24 @@ CSV 出力ディレクトリ指定(-CSVPath)
     実行ログの出力先
     省略時はカレントディレクトリに出力します
 
+資格情報を使用する(-UseCredential)
+    Web 対話ログインではなく、資格情報を使用します
+
 .EXAMPLE
 PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1
 アンマッチデバイスリストを出力します
 
+.EXAMPLE
 PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1 -CSVPath C:\CSV
 アンマッチデバイスリストを C:\CSV に出力します
 
+.EXAMPLE
 PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1 -LogPath C:\Log
 実行ログを C:\Log に出力します
+
+.EXAMPLE
+PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1 -UseCredential
+Web 対話ログインではなく、資格情報を使用します
 
 .PARAMETER CSVPath
 CSV の出力先
@@ -31,6 +40,9 @@ CSV の出力先
 
 .PARAMETER AllList
 全デバイス リストを CSV 出力します
+
+.PARAMETER UseCredential
+Web 対話ログインではなく資格情報を使用します
 #>
 
 #######################################################
@@ -40,7 +52,9 @@ CSV の出力先
 #######################################################
 Param(
 	[string]$CSVPath,			# CSV 出力 Path
-	[string]$LogPath			# ログ出力ディレクトリ
+	[string]$LogPath,			# ログ出力ディレクトリ
+	[switch]$UseCredential		# 資格情報を使用する
+
 	)
 
 # 重複デバイスデータ名
@@ -496,9 +510,20 @@ catch{
 	Install-Module Microsoft.Graph.Intune
 }
 
+# 資格情報を使用
+if( $UseCredential ){
+	$Credential = Get-Credential -Message "Azure の ID / Password を入力してください"
+}
+
+
 # Azure AD Login
 try{
-	Connect-AzureAD -ErrorAction Stop
+	if( $UseCredential ){
+		Connect-AzureAD -Credential $Credential -ErrorAction Stop
+	}
+	else{
+		Connect-AzureAD -ErrorAction Stop
+	}
 }
 catch{
 	Log "[FAIL] Azure login fail !"
@@ -515,7 +540,12 @@ Log "[INFO] Azure AD Devices count : $Count"
 
 # Intune Login
 try{
-	Connect-MSGraph -ErrorAction Stop
+	if( $UseCredential ){
+		Connect-MSGraph -Credential $Credential -ErrorAction Stop
+	}
+	else{
+		Connect-MSGraph -ErrorAction Stop
+	}
 }
 catch{
 	Log "[FAIL] Intune login fail !"

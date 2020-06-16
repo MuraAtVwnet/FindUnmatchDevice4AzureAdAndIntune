@@ -10,6 +10,9 @@ CSV 出力ディレクトリ指定(-CSVPath)
     実行ログの出力先
     省略時はカレントディレクトリに出力します
 
+資格情報を使用する(-UseCredential)
+    Web 対話ログインではなく、資格情報を使用します
+
 
 ■ 例
 PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1
@@ -20,3 +23,6 @@ PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1 -CSVPath C:\CSV
 
 PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1 -LogPath C:\Log
 実行ログを C:\Log に出力します
+
+PS C:\Test> .\FindUnmatchDevice4AzureAdAndIntune.ps1 -UseCredential
+Web 対話ログインではなく、資格情報を使用します
