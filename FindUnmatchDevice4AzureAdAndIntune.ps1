@@ -150,14 +150,16 @@ function SetAzureAdDeviceData($AzureADData){
 
 	$DeviceData = New-Object CsvRecode
 
-	# デバイス名
+	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $AzureADData.DisplayName
 
-	# オブジェクト ID
+	# デバイス ID(AzureAdDeviceID)
+	$DeviceData.AzureAdDeviceID = $AzureADData.DeviceId
+
+	# オブジェクト ID(AzureAdObjectID)
 	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
 
-	# デバイス ID
-	$DeviceData.AzureAdDeviceID = $AzureADData.DeviceId
+	# 管理デバイス ID(IntuneDeviceID)
 
 	# Azure AD Only
 	$DeviceData.AzureADOnly = '*'
@@ -173,13 +175,15 @@ function SetIntuneDeviceData($IntuneData){
 
 	$DeviceData = New-Object CsvRecode
 
-	# デバイス名
+	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $IntuneData.deviceName
 
-	# デバイス ID
+	# デバイス ID(AzureAdDeviceID)
 	$DeviceData.AzureAdDeviceID = $IntuneData.azureADDeviceId
 
-	# 管理デバイス ID
+	# オブジェクト ID(AzureAdObjectID)
+
+	# 管理デバイス ID(IntuneDeviceID)
 	$DeviceData.IntuneDeviceID = $IntuneData.managedDeviceId
 
 	# Intune Only
@@ -195,16 +199,16 @@ function SetAzureAdAndIntuneDeviceData($AzureADData, $IntuneData){
 
 	$DeviceData = New-Object CsvRecode
 
-	# デバイス名
+	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $AzureADData.DisplayName
 
-	# オブジェクト ID
-	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
-
-	# デバイス ID
+	# デバイス ID(AzureAdDeviceID)
 	$DeviceData.AzureAdDeviceID = $AzureADData.DeviceId
 
-	# 管理デバイス ID
+	# オブジェクト ID(AzureAdObjectID)
+	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
+
+	# 管理デバイス ID(IntuneDeviceID)
 	$DeviceData.IntuneDeviceID = $IntuneData.managedDeviceId
 
 	# Match
