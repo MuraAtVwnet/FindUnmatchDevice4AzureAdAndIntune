@@ -536,7 +536,7 @@ catch{
 }
 
 # Azure AD 全デバイスを取得
-[array]$AzureAdDevicesData = Get-AzureADDevice | AddMatchingKey4AzureAD
+[array]$AzureAdDevicesData = Get-AzureADDevice -All $true | AddMatchingKey4AzureAD
 
 # 対象デバイス数表示
 $Count = $AzureAdDevicesData.Count
