@@ -74,8 +74,9 @@ $GC_LogName = "FindUnmatchDevice"
 # CSV レコード
 class CsvRecode {
 	[string] $DeviceName
-	[string] $AzureAdDeviceID
+	[string] $AzureAdDeviceID_Azure
 	[string] $AzureAdObjectID
+	[string] $AzureAdDeviceID_Intune
 	[string] $IntuneDeviceID
 	[string] $AzureADOnly
 	[string] $IntuneOnly
@@ -153,8 +154,10 @@ function SetAzureAdDeviceData($AzureADData){
 	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $AzureADData.DisplayName
 
-	# デバイス ID(AzureAdDeviceID)
-	$DeviceData.AzureAdDeviceID = $AzureADData.DeviceId
+	# デバイス ID(AzureAdDeviceID_Azure)
+	$DeviceData.AzureAdDeviceID_Azure = $AzureADData.DeviceId
+
+	# デバイス ID(AzureAdDeviceID_Intune)
 
 	# オブジェクト ID(AzureAdObjectID)
 	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
@@ -178,8 +181,10 @@ function SetIntuneDeviceData($IntuneData){
 	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $IntuneData.deviceName
 
-	# デバイス ID(AzureAdDeviceID)
-	$DeviceData.AzureAdDeviceID = $IntuneData.azureADDeviceId
+	# デバイス ID(AzureAdDeviceID_Azure)
+
+	# デバイス ID(AzureAdDeviceID_Intune)
+	$DeviceData.AzureAdDeviceID_Intune = $IntuneData.azureADDeviceId
 
 	# オブジェクト ID(AzureAdObjectID)
 
@@ -202,8 +207,11 @@ function SetAzureAdAndIntuneDeviceData($AzureADData, $IntuneData){
 	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $AzureADData.DisplayName
 
-	# デバイス ID(AzureAdDeviceID)
-	$DeviceData.AzureAdDeviceID = $AzureADData.DeviceId
+	# デバイス ID(AzureAdDeviceID_Azure)
+	$DeviceData.AzureAdDeviceID_Azure = $AzureADData.DeviceId
+
+	# デバイス ID(AzureAdDeviceID_Intune)
+	$DeviceData.AzureAdDeviceID_Intune = $IntuneData.azureADDeviceId
 
 	# オブジェクト ID(AzureAdObjectID)
 	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
