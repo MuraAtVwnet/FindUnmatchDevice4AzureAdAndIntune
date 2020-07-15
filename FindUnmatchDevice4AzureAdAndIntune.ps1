@@ -565,18 +565,6 @@ catch{
 	exit
 }
 
-
-
-# Intune Login
-try{
-	Connect-MSGraph -ErrorAction Stop
-}
-catch{
-	Log "[FAIL] Intune login fail !"
-	Log "[INFO] ============== END =============="
-	exit
-}
-
 # Intune 全デバイスを取得
 [array]$IntuneDevicesData = Get-IntuneManagedDevice | AddMatchingKey4Intune
 
