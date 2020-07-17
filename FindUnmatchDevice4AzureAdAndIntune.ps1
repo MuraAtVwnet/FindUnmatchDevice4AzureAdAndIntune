@@ -53,7 +53,8 @@ Web 対話ログインではなく資格情報を使用します
 Param(
 	[string]$CSVPath,			# CSV 出力 Path
 	[string]$LogPath,			# ログ出力ディレクトリ
-	[switch]$UseCredential		# 資格情報を使用する
+	[switch]$UseCredential,		# 資格情報を使用する
+	[switch]$IdOnly				# デバイス名を含めずマッチングする
 
 	)
 
@@ -130,7 +131,12 @@ function Log(
 # AzureAD データにマッチングキー追加
 ###################################################
 filter AddMatchingKey4AzureAD{
-	$MatchingKey = $_.DisplayName + ":" + $_.DeviceId
+	if( $IdOnly ){
+		$MatchingKey = $_.DeviceId
+	}
+	else{
+		$MatchingKey = $_.DisplayName + ":" + $_.DeviceId
+	}
 	Add-Member -InputObject $_ -MemberType NoteProperty -Name MatchingKey -Value $MatchingKey -Force
 	return $_
 }
@@ -139,7 +145,12 @@ filter AddMatchingKey4AzureAD{
 # Intune データにマッチングキー追加
 ###################################################
 filter AddMatchingKey4Intune{
-	$MatchingKey = $_.deviceName + ":" + $_.azureADDeviceId
+	if( $IdOnly ){
+		$MatchingKey = $_.azureADDeviceId
+	}
+	else{
+		$MatchingKey = $_.deviceName + ":" + $_.azureADDeviceId
+	}
 	Add-Member -InputObject $_ -MemberType NoteProperty -Name MatchingKey -Value $MatchingKey -Force
 	return $_
 }
