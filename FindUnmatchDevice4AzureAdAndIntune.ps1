@@ -77,8 +77,12 @@ class CsvRecode {
 	[string] $DeviceName
 	[string] $AzureAdDeviceID_Azure
 	[string] $AzureAdObjectID
+	[string] $AzureLastLogin
 	[string] $AzureAdDeviceID_Intune
 	[string] $IntuneDeviceID
+	[string] $IntuneLastSync
+	[string] $IntuneUserName
+	[string] $IntuneUPN
 	[string] $AzureADOnly
 	[string] $IntuneOnly
 	[string] $Match
@@ -168,12 +172,26 @@ function SetAzureAdDeviceData($AzureADData){
 	# デバイス ID(AzureAdDeviceID_Azure)
 	$DeviceData.AzureAdDeviceID_Azure = $AzureADData.DeviceId
 
+	# ラストログイン(AzureLastLogin)
+	try{
+		$DeviceData.AzureLastLogin = (Get-Date $AzureADData.ApproximateLastLogonTimeStamp).ToString()
+	}
+	catch{
+		$DeviceData.AzureLastLogin = $null
+	}
+
 	# デバイス ID(AzureAdDeviceID_Intune)
 
 	# オブジェクト ID(AzureAdObjectID)
 	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
 
 	# 管理デバイス ID(IntuneDeviceID)
+
+	# 最終同期(IntuneLastSync)
+
+	# UPN(userPrincipalName)
+
+	# ユーザー名(userDisplayName)
 
 	# Azure AD Only
 	$DeviceData.AzureADOnly = '*'
@@ -199,8 +217,24 @@ function SetIntuneDeviceData($IntuneData){
 
 	# オブジェクト ID(AzureAdObjectID)
 
+	# ラストログイン(AzureLastLogin)
+
 	# 管理デバイス ID(IntuneDeviceID)
 	$DeviceData.IntuneDeviceID = $IntuneData.managedDeviceId
+
+	# 最終同期(IntuneLastSync)
+	try{
+		$DeviceData.IntuneLastSync = (Get-Date $IntuneData.lastSyncDateTime).ToString()
+	}
+	catch{
+		$DeviceData.IntuneLastSync = $null
+	}
+
+	# UPN(userPrincipalName)
+	$DeviceData.IntuneUPN = $IntuneData.userPrincipalName
+
+	# ユーザー名(userDisplayName)
+	$DeviceData.IntuneUserName = $IntuneData.userDisplayName
 
 	# Intune Only
 	$DeviceData.IntuneOnly = '*'
@@ -227,16 +261,36 @@ function SetAzureAdAndIntuneDeviceData($AzureADData, $IntuneData){
 	# オブジェクト ID(AzureAdObjectID)
 	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
 
+	# ラストログイン(AzureLastLogin)
+	try{
+		$DeviceData.AzureLastLogin = (Get-Date $AzureADData.ApproximateLastLogonTimeStamp).ToString()
+	}
+	catch{
+		$DeviceData.AzureLastLogin = $null
+	}
+
 	# 管理デバイス ID(IntuneDeviceID)
 	$DeviceData.IntuneDeviceID = $IntuneData.managedDeviceId
+
+	# 最終同期(IntuneLastSync)
+	try{
+		$DeviceData.IntuneLastSync = (Get-Date $IntuneData.lastSyncDateTime).ToString()
+	}
+	catch{
+		$DeviceData.IntuneLastSync = $null
+	}
+
+	# UPN(userPrincipalName)
+	$DeviceData.IntuneUPN = $IntuneData.userPrincipalName
+
+	# ユーザー名(userDisplayName)
+	$DeviceData.IntuneUserName = $IntuneData.userDisplayName
 
 	# Match
 	$DeviceData.Match = '*'
 
 	return $DeviceData
 }
-
-
 
 #######################################################
 # マスター Key セット
