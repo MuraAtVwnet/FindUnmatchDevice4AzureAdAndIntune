@@ -75,14 +75,14 @@ $GC_LogName = "FindUnmatchDevice"
 # CSV レコード
 class CsvRecode {
 	[string] $DeviceName
-	[string] $AzureAdDeviceID_Azure
-	[string] $AzureAdObjectID
-	[string] $AzureLastLogin
-	[string] $AzureAdDeviceID_Intune
-	[string] $IntuneDeviceID
-	[string] $IntuneLastSync
-	[string] $IntuneUserName
-	[string] $IntuneUPN
+	[string] $DeviceId_Azure
+	[string] $ObjectId_Azure
+	[string] $ApproximateLastLogonTimeStamp_Azure
+	[string] $azureADDeviceId_Intune
+	[string] $managedDeviceId_Intune
+	[string] $lastSyncDateTime_Intune
+	[string] $userDisplayName_Intune
+	[string] $userPrincipalName_Intune
 	[string] $AzureADOnly
 	[string] $IntuneOnly
 	[string] $Match
@@ -169,25 +169,25 @@ function SetAzureAdDeviceData($AzureADData){
 	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $AzureADData.DisplayName
 
-	# デバイス ID(AzureAdDeviceID_Azure)
-	$DeviceData.AzureAdDeviceID_Azure = $AzureADData.DeviceId
+	# デバイス ID(DeviceId_Azure)
+	$DeviceData.DeviceId_Azure = $AzureADData.DeviceId
 
-	# ラストログイン(AzureLastLogin)
+	# ラストログイン(ApproximateLastLogonTimeStamp_Azure)
 	try{
-		$DeviceData.AzureLastLogin = (Get-Date $AzureADData.ApproximateLastLogonTimeStamp).ToString()
+		$DeviceData.ApproximateLastLogonTimeStamp_Azure = (Get-Date $AzureADData.ApproximateLastLogonTimeStamp).ToString()
 	}
 	catch{
-		$DeviceData.AzureLastLogin = $null
+		$DeviceData.ApproximateLastLogonTimeStamp_Azure = $null
 	}
 
-	# デバイス ID(AzureAdDeviceID_Intune)
+	# デバイス ID(azureADDeviceId_Intune)
 
-	# オブジェクト ID(AzureAdObjectID)
-	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
+	# オブジェクト ID(ObjectId_Azure)
+	$DeviceData.ObjectId_Azure = $AzureADData.ObjectId
 
-	# 管理デバイス ID(IntuneDeviceID)
+	# 管理デバイス ID(managedDeviceId_Intune)
 
-	# 最終同期(IntuneLastSync)
+	# 最終同期(lastSyncDateTime_Intune)
 
 	# UPN(userPrincipalName)
 
@@ -210,31 +210,31 @@ function SetIntuneDeviceData($IntuneData){
 	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $IntuneData.deviceName
 
-	# デバイス ID(AzureAdDeviceID_Azure)
+	# デバイス ID(DeviceId_Azure)
 
-	# デバイス ID(AzureAdDeviceID_Intune)
-	$DeviceData.AzureAdDeviceID_Intune = $IntuneData.azureADDeviceId
+	# デバイス ID(azureADDeviceId_Intune)
+	$DeviceData.azureADDeviceId_Intune = $IntuneData.azureADDeviceId
 
-	# オブジェクト ID(AzureAdObjectID)
+	# オブジェクト ID(ObjectId_Azure)
 
-	# ラストログイン(AzureLastLogin)
+	# ラストログイン(ApproximateLastLogonTimeStamp_Azure)
 
-	# 管理デバイス ID(IntuneDeviceID)
-	$DeviceData.IntuneDeviceID = $IntuneData.managedDeviceId
+	# 管理デバイス ID(managedDeviceId_Intune)
+	$DeviceData.managedDeviceId_Intune = $IntuneData.managedDeviceId
 
-	# 最終同期(IntuneLastSync)
+	# 最終同期(lastSyncDateTime_Intune)
 	try{
-		$DeviceData.IntuneLastSync = (Get-Date $IntuneData.lastSyncDateTime).ToString()
+		$DeviceData.lastSyncDateTime_Intune = (Get-Date $IntuneData.lastSyncDateTime).ToString()
 	}
 	catch{
-		$DeviceData.IntuneLastSync = $null
+		$DeviceData.lastSyncDateTime_Intune = $null
 	}
 
 	# UPN(userPrincipalName)
-	$DeviceData.IntuneUPN = $IntuneData.userPrincipalName
+	$DeviceData.userPrincipalName_Intune = $IntuneData.userPrincipalName
 
 	# ユーザー名(userDisplayName)
-	$DeviceData.IntuneUserName = $IntuneData.userDisplayName
+	$DeviceData.userDisplayName_Intune = $IntuneData.userDisplayName
 
 	# Intune Only
 	$DeviceData.IntuneOnly = '*'
@@ -252,39 +252,39 @@ function SetAzureAdAndIntuneDeviceData($AzureADData, $IntuneData){
 	# デバイス名(DeviceName)
 	$DeviceData.DeviceName = $AzureADData.DisplayName
 
-	# デバイス ID(AzureAdDeviceID_Azure)
-	$DeviceData.AzureAdDeviceID_Azure = $AzureADData.DeviceId
+	# デバイス ID(DeviceId_Azure)
+	$DeviceData.DeviceId_Azure = $AzureADData.DeviceId
 
-	# デバイス ID(AzureAdDeviceID_Intune)
-	$DeviceData.AzureAdDeviceID_Intune = $IntuneData.azureADDeviceId
+	# デバイス ID(azureADDeviceId_Intune)
+	$DeviceData.azureADDeviceId_Intune = $IntuneData.azureADDeviceId
 
-	# オブジェクト ID(AzureAdObjectID)
-	$DeviceData.AzureAdObjectID = $AzureADData.ObjectId
+	# オブジェクト ID(ObjectId_Azure)
+	$DeviceData.ObjectId_Azure = $AzureADData.ObjectId
 
-	# ラストログイン(AzureLastLogin)
+	# ラストログイン(ApproximateLastLogonTimeStamp_Azure)
 	try{
-		$DeviceData.AzureLastLogin = (Get-Date $AzureADData.ApproximateLastLogonTimeStamp).ToString()
+		$DeviceData.ApproximateLastLogonTimeStamp_Azure = (Get-Date $AzureADData.ApproximateLastLogonTimeStamp).ToString()
 	}
 	catch{
-		$DeviceData.AzureLastLogin = $null
+		$DeviceData.ApproximateLastLogonTimeStamp_Azure = $null
 	}
 
-	# 管理デバイス ID(IntuneDeviceID)
-	$DeviceData.IntuneDeviceID = $IntuneData.managedDeviceId
+	# 管理デバイス ID(managedDeviceId_Intune)
+	$DeviceData.managedDeviceId_Intune = $IntuneData.managedDeviceId
 
-	# 最終同期(IntuneLastSync)
+	# 最終同期(lastSyncDateTime_Intune)
 	try{
-		$DeviceData.IntuneLastSync = (Get-Date $IntuneData.lastSyncDateTime).ToString()
+		$DeviceData.lastSyncDateTime_Intune = (Get-Date $IntuneData.lastSyncDateTime).ToString()
 	}
 	catch{
-		$DeviceData.IntuneLastSync = $null
+		$DeviceData.lastSyncDateTime_Intune = $null
 	}
 
 	# UPN(userPrincipalName)
-	$DeviceData.IntuneUPN = $IntuneData.userPrincipalName
+	$DeviceData.userPrincipalName_Intune = $IntuneData.userPrincipalName
 
 	# ユーザー名(userDisplayName)
-	$DeviceData.IntuneUserName = $IntuneData.userDisplayName
+	$DeviceData.userDisplayName_Intune = $IntuneData.userDisplayName
 
 	# Match
 	$DeviceData.Match = '*'
@@ -651,7 +651,7 @@ $CsvData += $RetData.TranOnlyData
 $CsvData += $RetData.MatchData
 
 # 出力データ sort
-[array]$SortCsvData = $CsvData | Sort-Object -Property DeviceName, AzureAdDeviceID, IntuneDeviceID
+[array]$SortCsvData = $CsvData | Sort-Object -Property DeviceName, DeviceId_Azure, managedDeviceId_Intune
 
 # 出力ファイル用処理時間
 $Now = Get-Date
